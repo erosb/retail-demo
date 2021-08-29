@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.3.0">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLState</id>
+    <coordinates>
+      <x>440</x>
+      <y>270</y>
+      <w>100</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>Webshop</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>530</x>
+      <y>270</y>
+      <w>220</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+&lt;&lt;kafka:new-order&gt;&gt;</panel_attributes>
+    <additional_attributes>200.0;20.0;10.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLState</id>
+    <coordinates>
+      <x>730</x>
+      <y>270</y>
+      <w>130</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>StockService</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>780</x>
+      <y>300</y>
+      <w>450</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+&lt;&lt;kafka:payment-finished&gt;&gt;</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;50.0;430.0;50.0;430.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLState</id>
+    <coordinates>
+      <x>1110</x>
+      <y>270</y>
+      <w>170</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>PaymentService</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>850</x>
+      <y>270</y>
+      <w>280</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+&lt;&lt;kafka:payment-request&gt;&gt;</panel_attributes>
+    <additional_attributes>260.0;20.0;10.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>550</x>
+      <y>130</y>
+      <w>160</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>Order
+--
+ - shippingAddress
+ - invoiceAddress
+ - orderLines: List
+   - productId
+   - quantity</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>950</x>
+      <y>170</y>
+      <w>160</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>PaymentRequest
+--
+ - orderId
+ - orderLines
+ - customerId</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1000</x>
+      <y>360</y>
+      <w>220</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>PaymentFinished
+--
+ - orderId
+ - success/failure</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLState</id>
+    <coordinates>
+      <x>720</x>
+      <y>460</y>
+      <w>160</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>ShippingService</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>760</x>
+      <y>300</y>
+      <w>200</w>
+      <h>180</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+&lt;&lt;kafka:order-shippable&gt;&gt;</panel_attributes>
+    <additional_attributes>10.0;160.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLState</id>
+    <coordinates>
+      <x>570</x>
+      <y>400</y>
+      <w>90</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>Rel. DB
+--
+
+
+
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>
