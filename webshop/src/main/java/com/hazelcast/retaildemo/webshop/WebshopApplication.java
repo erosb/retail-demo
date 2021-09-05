@@ -28,13 +28,15 @@ public class WebshopApplication {
     @Bean
     public ApplicationRunner applicationRunner() {
         return args -> {
-            kafkaTemplate.send(NEW_ORDERS, OrderModel.builder()
-                    .orderLines(List.of(OrderLineModel.builder()
-                            .productId("rnd1")
-                            .quantity(2)
-                            .build()))
-                    .build());
-            log.info("Hello");
+            for (;;) {
+                Thread.sleep(50);
+                kafkaTemplate.send(NEW_ORDERS, OrderModel.builder()
+                        .orderLines(List.of(OrderLineModel.builder()
+                                .productId("rnd1")
+                                .quantity(2)
+                                .build()))
+                        .build());
+            }
         };
     }
 }

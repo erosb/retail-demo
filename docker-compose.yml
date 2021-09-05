@@ -1,0 +1,43 @@
+version: "3.8"
+services:
+  db:
+    image: postgres:latest
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: hz-demo
+  zookeeper:
+    image: bitnami/zookeeper:latest
+    environment:
+        ALLOW_ANONYMOUS_LOGIN: "yes"
+  kafka:
+    image: bitnami/kafka
+    depends_on:
+      - zookeeper
+    environment:
+      ALLOW_PLAINTEXT_LISTENER: "yes"
+      KAFKA_CFG_ZOOKEEPER_CONNECT: zookeeper:2181
+  stock-service:
+    image: openjdk:11
+    ports:
+     - 8082
+    volumes:
+      - ./stock-service/target/stock-service-0.0.1-SNAPSHOT.jar:/opt/stock-service.jar
+    entrypoint: "java -jar /opt/stock-service.jar"
+  webshop:
+    image: openjdk:11
+    ports:
+      - 8080:8080
+    volumes:
+      - ./webshop/target/webshop-0.0.1-SNAPSHOT.jar:/opt/webshop.jar
+    entrypoint: "java -jar /opt/webshop.jar"
+  payment-service:
+    image: openjdk:11
+    ports:
+      - 8081:8081
+    volumes:
+      - ./payment-service/target/payment-service-0.0.1-SNAPSHOT.jar:/opt/payment-service.jar
+    entrypoint: "java -jar /opt/payment-service.jar"
+
