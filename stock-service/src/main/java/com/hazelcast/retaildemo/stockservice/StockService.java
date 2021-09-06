@@ -25,8 +25,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
+
+import static java.sql.Statement.RETURN_GENERATED_KEYS;
 
 @SpringBootApplication
 @Slf4j
@@ -111,12 +114,13 @@ public class StockService {
             GeneratedKeyHolder orderIdHolder = new GeneratedKeyHolder();
             jdbcTemplate.update(conn -> {
                 PreparedStatement ps = conn.prepareStatement(
-                        "INSERT INTO \"order\" (shipping_address_id, invoice_address_id) VALUES (?, ?)");
+                        "INSERT INTO \"order\" (shipping_address_id, invoice_address_id) VALUES (?, ?)", RETURN_GENERATED_KEYS);
                 ps.setObject(1, shippingAddressId);
                 ps.setObject(2, invoiceAddressId);
                 return ps;
             }, orderIdHolder);
-            Long orderId = orderIdHolder.getKeyAs(Long.class);
+            Long orderId = (Long) orderIdHolder.getKeys().get("order_id");
+            log.info("persisted order with id={}", orderId);
             order.getOrderLines().forEach(line -> {
                 jdbcTemplate.update("INSERT INTO order_line (order_id, product_id, quantity) VALUES (?, ?, ?)",
                         orderId, line.getProductId(), line.getQuantity());

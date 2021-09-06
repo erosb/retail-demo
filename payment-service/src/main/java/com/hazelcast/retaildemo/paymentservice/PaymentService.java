@@ -2,6 +2,7 @@ package com.hazelcast.retaildemo.paymentservice;
 
 import com.hazelcast.retaildemo.sharedmodels.OrderModel;
 import com.hazelcast.retaildemo.sharedmodels.PaymentFinishedModel;
+import com.hazelcast.retaildemo.sharedmodels.PaymentRequestModel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
@@ -31,11 +32,11 @@ public class PaymentService {
         };
     }
 
-    @KafkaListener(topics = {"new-orders"}, groupId = "test")
-    void newOrderArrived(OrderModel order) {
-        log.info("received order {}", order);
+    @KafkaListener(topics = {"payment-request"}, groupId = "test")
+    void newOrderArrived(PaymentRequestModel paymentRequest) {
+        log.info("received payment request {}", paymentRequest);
         kafkaTemplate.send(PAYMENT_FINISHED, PaymentFinishedModel.builder()
-                .order(order)
+                .orderId(paymentRequest.getOrderId())
                 .isSuccess(randomSuccessOrFailure())
                 .build());
     }
