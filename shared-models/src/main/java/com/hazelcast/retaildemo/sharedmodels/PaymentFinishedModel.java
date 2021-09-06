@@ -10,9 +10,9 @@ import lombok.Data;
 public class PaymentFinishedModel {
 
     boolean isSuccess;
-    int orderId;
+    Long orderId;
 
     public PaymentFinishedModel() {
-        this(false, 0);
+        this(false, 0L);
     }
 }

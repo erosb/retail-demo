@@ -13,10 +13,15 @@ import static java.util.Collections.emptyList;
 @AllArgsConstructor
 public class OrderModel {
 
+    Long orderId;
 
     List<OrderLineModel> orderLines;
 
+    AddressModel shippingAddress;
+
+    AddressModel invoiceAddress;
+
     public OrderModel() {
-        this(emptyList());
+        this(null, emptyList(), null, null);
     }
 }

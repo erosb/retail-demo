@@ -14,6 +14,45 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
             <column name="reserved_quantity" type="bigint" />
             <column name="unit_price" type="varchar(10)" />
         </createTable>
+
+        <createTable tableName="address">
+            <column name="id" autoIncrement="true" type="bigint">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="country" type="varchar(50)" />
+            <column name="postalCode" type="varchar(4)" />
+            <column name="city" type="varchar(50)" />
+            <column name="streetAddress" type="varchar(100)" />
+        </createTable>
+
+        <createTable tableName="order">
+            <column name="order_id" autoIncrement="true" type="bigint">
+                <constraints primaryKey="true" />
+            </column>
+            <column name="shipping_address_id" type="bigint">
+<!--                <constraints referencedTableName="address" referencedColumnNames="id" />-->
+                <constraints references="address(id)" foreignKeyName="fk_order_shipping_address"/>
+            </column>
+            <column name="invoice_address_id" type="bigint">
+<!--                <constraints referencedTableName="address" referencedColumnNames="id" />-->
+                <constraints references="address(id)" foreignKeyName="fk_order_invoice_address"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="order_line">
+            <column name="id" autoIncrement="true" type="bigint">
+                <constraints primaryKey="true" />
+            </column>
+            <column name="order_id" type="bigint">
+<!--                <constraints referencedTableName="order" referencedColumnNames="id" />-->
+                <constraints references="order(order_id)" foreignKeyName="fk_order_line_order"/>
+            </column>
+            <column name="product_id" type="varchar(250)">
+<!--                <constraints referencedTableName="stock" referencedColumnNames="product_id" />-->
+                <constraints references="stock(product_id)" foreignKeyName="fk_order_line_stock"/>
+            </column>
+            <column name="quantity" type="int" />
+        </createTable>
     </changeSet>
 
     <changeSet id="2" author="erosb">

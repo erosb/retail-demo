@@ -11,11 +11,11 @@ import java.util.List;
 @AllArgsConstructor
 public class PaymentRequestModel {
 
-    int orderId;
+    Long orderId;
     List<OrderLineModel> orderLines;
 
     public PaymentRequestModel() {
-        this(0, List.of());
+        this(0L, List.of());
     }
 
 }
