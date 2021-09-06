@@ -4,15 +4,18 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @Builder
 @AllArgsConstructor
-public class PaymentFinishedModel {
+public class PaymentRequestModel {
 
-    boolean isSuccess;
     int orderId;
+    List<OrderLineModel> orderLines;
 
-    public PaymentFinishedModel() {
-        this(false, 0);
+    public PaymentRequestModel() {
+        this(0, List.of());
     }
+
 }

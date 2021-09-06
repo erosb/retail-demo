@@ -45,6 +45,12 @@
                 <artifactId>shared-models</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>com.hazelcast</groupId>
+                <artifactId>hazelcast</artifactId>
+                <version>5.0-BETA-2</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

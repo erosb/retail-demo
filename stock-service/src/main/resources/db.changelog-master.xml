@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<databaseChangeLog  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+
+    <changeSet id="1" author="erosb">
+        <createTable tableName="stock">
+            <column name="product_id" type="varchar(250)">
+                <constraints primaryKey="true" />
+            </column>
+            <column name="available_quantity" type="bigint" />
+            <column name="reserved_quantity" type="bigint" />
+            <column name="unit_price" type="varchar(10)" />
+        </createTable>
+    </changeSet>
+
+    <changeSet id="2" author="erosb">
+        <insert tableName="stock">
+            <column name="product_id" value="IGI6DQ" />
+            <column name="reserved_quantity" value="0" />
+            <column name="available_quantity" value="10000" />
+            <column name="unit_price" value="810" />
+        </insert>
+        <insert tableName="stock">
+            <column name="product_id" value="BOZ80T" />
+            <column name="reserved_quantity" value="0" />
+            <column name="available_quantity" value="10000" />
+            <column name="unit_price" value="40" />
+        </insert>
+        <insert tableName="stock">
+            <column name="product_id" value="K8HIU3" />
+            <column name="reserved_quantity" value="0" />
+            <column name="available_quantity" value="10000" />
+            <column name="unit_price" value="400" />
+        </insert>
+        <insert tableName="stock">
+            <column name="product_id" value="JDE7YU" />
+            <column name="reserved_quantity" value="0" />
+            <column name="available_quantity" value="10000" />
+            <column name="unit_price" value="720" />
+        </insert>
+        <insert tableName="stock">
+            <column name="product_id" value="GAVWDH" />
+            <column name="reserved_quantity" value="0" />
+            <column name="available_quantity" value="10000" />
+            <column name="unit_price" value="130" />
+        </insert>
+        <insert tableName="stock">
+            <column name="product_id" value="PWM0BB" />
+            <column name="reserved_quantity" value="0" />
+            <column name="available_quantity" value="10000" />
+            <column name="unit_price" value="880" />
+        </insert>
+        <insert tableName="stock">
+            <column name="product_id" value="7KYXIM" />
+            <column name="reserved_quantity" value="0" />
+            <column name="available_quantity" value="10000" />
+            <column name="unit_price" value="370" />
+        </insert>
+        <insert tableName="stock">
+            <column name="product_id" value="G8UKJM" />
+            <column name="reserved_quantity" value="0" />
+            <column name="available_quantity" value="10000" />
+            <column name="unit_price" value="700" />
+        </insert>
+        <insert tableName="stock">
+            <column name="product_id" value="U4YNK1" />
+            <column name="reserved_quantity" value="0" />
+            <column name="available_quantity" value="10000" />
+            <column name="unit_price" value="450" />
+        </insert>
+        <insert tableName="stock">
+            <column name="product_id" value="822GWT" />
+            <column name="reserved_quantity" value="0" />
+            <column name="available_quantity" value="10000" />
+            <column name="unit_price" value="400" />
+        </insert>
+        <insert tableName="stock">
+            <column name="product_id" value="GIRJNC" />
+            <column name="reserved_quantity" value="0" />
+            <column name="available_quantity" value="10000" />
+            <column name="unit_price" value="500" />
+        </insert>
+        <insert tableName="stock">
+            <column name="product_id" value="7282Y1" />
+            <column name="reserved_quantity" value="0" />
+            <column name="available_quantity" value="10000" />
+            <column name="unit_price" value="240" />
+        </insert>
+        <insert tableName="stock">
+            <column name="product_id" value="4IYCKU" />
+            <column name="reserved_quantity" value="0" />
+            <column name="available_quantity" value="10000" />
+            <column name="unit_price" value="830" />
+        </insert>
+        <insert tableName="stock">
+            <column name="product_id" value="PP46UO" />
+            <column name="reserved_quantity" value="0" />
+            <column name="available_quantity" value="10000" />
+            <column name="unit_price" value="810" />
+        </insert>
+        <insert tableName="stock">
+            <column name="product_id" value="9CT7C4" />
+            <column name="reserved_quantity" value="0" />
+            <column name="available_quantity" value="10000" />
+            <column name="unit_price" value="270" />
+        </insert>
+        <insert tableName="stock">
+            <column name="product_id" value="TNQ4MS" />
+            <column name="reserved_quantity" value="0" />
+            <column name="available_quantity" value="10000" />
+            <column name="unit_price" value="580" />
+        </insert>
+        <insert tableName="stock">
+            <column name="product_id" value="GSN64K" />
+            <column name="reserved_quantity" value="0" />
+            <column name="available_quantity" value="10000" />
+            <column name="unit_price" value="20" />
+        </insert>
+        <insert tableName="stock">
+            <column name="product_id" value="9P7BMH" />
+            <column name="reserved_quantity" value="0" />
+            <column name="available_quantity" value="10000" />
+            <column name="unit_price" value="30" />
+        </insert>
+        <insert tableName="stock">
+            <column name="product_id" value="9LE1TN" />
+            <column name="reserved_quantity" value="0" />
+            <column name="available_quantity" value="10000" />
+            <column name="unit_price" value="50" />
+        </insert>
+        <insert tableName="stock">
+            <column name="product_id" value="AX3MRO" />
+            <column name="reserved_quantity" value="0" />
+            <column name="available_quantity" value="10000" />
+            <column name="unit_price" value="820" />
+        </insert>
+    </changeSet>
+</databaseChangeLog>

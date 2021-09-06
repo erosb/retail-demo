@@ -1,0 +1,4 @@
+hazelcast-client:
+  network:
+    cluster-members:
+      - hz-member

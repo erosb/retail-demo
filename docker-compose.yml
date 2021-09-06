@@ -19,6 +19,10 @@ services:
     environment:
       ALLOW_PLAINTEXT_LISTENER: "yes"
       KAFKA_CFG_ZOOKEEPER_CONNECT: zookeeper:2181
+  hz-member:
+    image: hazelcast/hazelcast:5.0-BETA-2
+    ports:
+      - 5701:5701
   stock-service:
     image: openjdk:11
     ports:
@@ -26,6 +30,10 @@ services:
     volumes:
       - ./stock-service/target/stock-service-0.0.1-SNAPSHOT.jar:/opt/stock-service.jar
     entrypoint: "java -jar /opt/stock-service.jar"
+    depends_on:
+      - kafka
+      - hz-member
+      - db
   webshop:
     image: openjdk:11
     ports:
@@ -33,6 +41,8 @@ services:
     volumes:
       - ./webshop/target/webshop-0.0.1-SNAPSHOT.jar:/opt/webshop.jar
     entrypoint: "java -jar /opt/webshop.jar"
+    depends_on:
+      - kafka
   payment-service:
     image: openjdk:11
     ports:
@@ -40,4 +50,6 @@ services:
     volumes:
       - ./payment-service/target/payment-service-0.0.1-SNAPSHOT.jar:/opt/payment-service.jar
     entrypoint: "java -jar /opt/payment-service.jar"
+    depends_on:
+      - kafka
 
