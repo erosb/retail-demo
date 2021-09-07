@@ -49,14 +49,14 @@ public class StockService {
     private KafkaTemplate<String, PaymentRequestModel> kafkaTemplate;
 
     @Autowired
-    private AddressRepository addressRepo;
+    private OrderRepository orderRepository;
 
     @KafkaListener(topics = "new-orders", groupId = "test")
     public void newOrder(OrderModel order) {
         log.info("received new-orders: {}", order);
         txTemplate.executeWithoutResult(status ->
                 order.getOrderLines().forEach(line -> {
-                    Long avail = jdbcTemplate.queryForObject("select available_quantity from stock where product_id = ?",
+                    Long avail = jdbcTemplate.queryForObject("SELECT available_quantity FROM stock WHERE product_id = ?",
                             Long.class,
                             line.getProductId());
                     if (avail == 0L) {
@@ -71,7 +71,7 @@ public class StockService {
                             line.getQuantity(),
                             line.getProductId());
                 }));
-        Long orderId = persistOrder(order);
+        Long orderId = orderRepository.save(order);
         kafkaTemplate.send("payment-request", PaymentRequestModel.builder()
                 .orderId(orderId)
                 .orderLines(order.getOrderLines())
@@ -82,7 +82,7 @@ public class StockService {
     public void paymentFinished(PaymentFinishedModel paymentFinished) {
         log.info("received paymentFinished: {}", paymentFinished);
         Long orderId = paymentFinished.getOrderId();
-        var orderLines = findOrderLinesByOrderId(orderId);
+        var orderLines = orderRepository.findOrderLinesByOrderId(orderId);
 
         txTemplate.execute(status -> {
             orderLines.forEach(line -> {
@@ -98,39 +98,6 @@ public class StockService {
                 }
             });
             return null;
-        });
-    }
-
-    private List<OrderLineModel> findOrderLinesByOrderId(Long orderId) {
-        return jdbcTemplate.query("SELECT * FROM order_line WHERE order_id = ?",
-                (ResultSet rs, int rowNum) -> OrderLineModel.builder()
-                        .productId(rs.getString("product_id"))
-                        .quantity(rs.getInt("quantity"))
-                        .build()
-                , orderId);
-    }
-
-    private Long persistOrder(OrderModel order) {
-        Long invoiceAddressId = Optional.ofNullable(order.getInvoiceAddress()).map(addressRepo::save).map(
-                AddressModel::getId).orElse(null);
-        Long shippingAddressId = Optional.ofNullable(order.getShippingAddress()).map(addressRepo::save).map(
-                AddressModel::getId).orElse(null);
-        return txTemplate.execute(status -> {
-            GeneratedKeyHolder orderIdHolder = new GeneratedKeyHolder();
-            jdbcTemplate.update(conn -> {
-                PreparedStatement ps = conn.prepareStatement(
-                        "INSERT INTO \"order\" (shipping_address_id, invoice_address_id) VALUES (?, ?)", RETURN_GENERATED_KEYS);
-                ps.setObject(1, shippingAddressId);
-                ps.setObject(2, invoiceAddressId);
-                return ps;
-            }, orderIdHolder);
-            Long orderId = (Long) orderIdHolder.getKeys().get("order_id");
-            log.info("persisted order with id={}", orderId);
-            order.getOrderLines().forEach(line -> {
-                jdbcTemplate.update("INSERT INTO order_line (order_id, product_id, quantity) VALUES (?, ?, ?)",
-                        orderId, line.getProductId(), line.getQuantity());
-            });
-            return orderId;
         });
     }
 }
