@@ -51,11 +51,14 @@ public class StockService {
     @Autowired
     private AddressRepository addressRepo;
 
+    private final HazelcastInstance hzClient = HazelcastClient.newHazelcastClient();
+
     @KafkaListener(topics = "new-orders", groupId = "test")
     public void newOrder(OrderModel order) {
         log.info("received new-orders: {}", order);
         txTemplate.executeWithoutResult(status ->
                 order.getOrderLines().forEach(line -> {
+                    hzClient.getMap("stock").get(line.getProductId());
                     Long avail = jdbcTemplate.queryForObject("select available_quantity from stock where product_id = ?",
                             Long.class,
                             line.getProductId());
