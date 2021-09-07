@@ -2,3 +2,10 @@ hazelcast-client:
   network:
     cluster-members:
       - hz-member
+  user-code-deployment:
+    enabled: true
+    jarPaths:
+      - /opt/stock-service.jar
+      - file:///opt/stock-service.jar
+    classNames:
+      - org.hazelcast.retaildemo.stockservice.ReservationEntryProcessor

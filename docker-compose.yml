@@ -23,6 +23,10 @@ services:
     image: hazelcast/hazelcast:5.0-BETA-2
     ports:
       - 5701:5701
+    volumes:
+      - ./hz-member-config.yaml:/opt/hz-member-config.yaml
+    environment:
+      JAVA_OPTS: "-Dhazelcast.config=/opt/hz-member-config.yaml"
   stock-service:
     image: openjdk:11
     ports:

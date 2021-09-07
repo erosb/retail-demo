@@ -1,0 +1,5 @@
+hazelcast:
+  user-code-deployment:
+    enabled: true
+    whitelist-prefixes: org.hazelcast.retaildemo
+
