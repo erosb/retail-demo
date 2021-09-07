@@ -25,8 +25,10 @@ services:
       - 5701:5701
     volumes:
       - ./hz-member-config.yaml:/opt/hz-member-config.yaml
+      - ./stock-service/target/classes:/opt/hazelcast/ext
     environment:
       JAVA_OPTS: "-Dhazelcast.config=/opt/hz-member-config.yaml"
+      CLASSPATH: "/opt/hazelcast/ext"
   stock-service:
     image: openjdk:11
     ports:
