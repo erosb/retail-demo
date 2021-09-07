@@ -2,6 +2,7 @@ package org.hazelcast.retaildemo.stockservice;
 
 import com.hazelcast.map.EntryProcessor;
 import lombok.RequiredArgsConstructor;
+import org.hazelcast.retaildemo.StockEntry;
 
 import java.util.Map;
 
