@@ -17,10 +17,9 @@
 			<artifactId>hazelcast</artifactId>
 		</dependency>
 
-
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>shared-models</artifactId>
+			<artifactId>hz-common</artifactId>
 		</dependency>
 
 		<dependency>

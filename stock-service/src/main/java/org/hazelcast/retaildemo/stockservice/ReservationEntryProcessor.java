@@ -2,6 +2,7 @@ package org.hazelcast.retaildemo.stockservice;
 
 import com.hazelcast.map.EntryProcessor;
 import lombok.RequiredArgsConstructor;
+import org.hazelcast.retaildemo.StockEntry;
 
 import java.util.Map;
 
@@ -12,7 +13,7 @@ public class ReservationEntryProcessor implements EntryProcessor<String, StockEn
 
     @Override
     public Boolean process(Map.Entry<String, StockEntry> mapEntry) {
-        StockEntry entry = mapEntry.getValue();
+        org.hazelcast.retaildemo.StockEntry entry = mapEntry.getValue();
         if (entry.getAvailableQuantity() == 0L) {
             return false;
         }

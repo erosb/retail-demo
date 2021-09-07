@@ -1,17 +1,15 @@
-package org.hazelcast.retaildemo.stockservice;
+package org.hazelcast.retaildemo;
 
+import lombok.Builder;
 import lombok.Data;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Column;
-import org.springframework.data.relational.core.mapping.Table;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
 @Data
-@Table("stock")
+@Builder
+@NoArgsConstructor
 public class StockEntry implements Serializable {
-    @Id
-    @Column("product_id")
     private String productId;
     private int availableQuantity;
     private int reservedQuantity;

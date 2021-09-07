@@ -3,6 +3,7 @@ package org.hazelcast.retaildemo.stockservice;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
+import org.hazelcast.retaildemo.StockEntry;
 import org.hazelcast.retaildemo.sharedmodels.OrderModel;
 import org.hazelcast.retaildemo.sharedmodels.PaymentFinishedModel;
 import org.hazelcast.retaildemo.sharedmodels.PaymentRequestModel;
