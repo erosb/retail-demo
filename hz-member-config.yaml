@@ -1,4 +1,7 @@
 hazelcast:
-  user-code-deployment:
-    enabled: false
+  map:
+    stock:
+      map-store:
+        enabled: true
+        class-name: org.hazelcast.retaildemo.StockMapStore
 
