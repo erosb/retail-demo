@@ -51,8 +51,6 @@ public class StockService {
     @Autowired
     private AddressRepository addressRepo;
 
-    private final HazelcastInstance hzClient = HazelcastClient.newHazelcastClient();
-
     @KafkaListener(topics = "new-orders", groupId = "test")
     public void newOrder(OrderModel order) {
         log.info("received new-orders: {}", order);
@@ -85,12 +83,19 @@ public class StockService {
         log.info("received paymentFinished: {}", paymentFinished);
         Long orderId = paymentFinished.getOrderId();
         var orderLines = findOrderLinesByOrderId(orderId);
+
         txTemplate.execute(status -> {
             orderLines.forEach(line -> {
                 jdbcTemplate.update("UPDATE stock SET reserved_quantity = reserved_quantity - ? "
                                 + "WHERE product_id = ?",
                         line.getQuantity(),
                         line.getProductId());
+                if (!paymentFinished.isSuccess()) {
+                    jdbcTemplate.update("UPDATE stock SET available_quantity = available_quantity + ? "
+                                    + "WHERE product_id = ?",
+                            line.getQuantity(),
+                            line.getProductId());
+                }
             });
             return null;
         });
