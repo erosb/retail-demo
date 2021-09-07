@@ -1,14 +1,14 @@
 package org.hazelcast.retaildemo;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
 @Data
 @Builder
-@NoArgsConstructor
+@AllArgsConstructor
 public class StockEntry implements Serializable {
     private String productId;
     private int availableQuantity;
@@ -29,5 +29,9 @@ public class StockEntry implements Serializable {
 
     public void decReserved(int quantity) {
         reservedQuantity += quantity;
+    }
+
+    public StockEntry() {
+        this("", 0, 0, 0);
     }
 }
