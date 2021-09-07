@@ -43,14 +43,14 @@ public class StockService {
     @KafkaListener(topics = "new-orders", groupId = "test")
     public void newOrder(OrderModel order) {
         log.info("received new-orders: {}", order);
+        IMap<String, StockEntry> stockMap = hzClient.getMap("stock");
         txTemplate.executeWithoutResult(status ->
                 order.getOrderLines().forEach(line -> {
-                    IMap<String, StockEntry> stockMap = hzClient.getMap("stock");
+                    int requestedQuantity = line.getQuantity();
                     StockEntry stockEntry = stockMap.get(line.getProductId());
                     if (stockEntry == null) {
                         stockEntry = stockRepository.findById(line.getProductId()).orElseThrow(IllegalArgumentException::new);
                     }
-                    int requestedQuantity = line.getQuantity();
                     if (stockEntry.getAvailableQuantity() < requestedQuantity) {
                         // error handling
                         return;
@@ -58,9 +58,6 @@ public class StockService {
                     stockEntry.incReserved(requestedQuantity);
                     stockEntry.decAvailable(requestedQuantity);
                     stockMap.put(line.getProductId(), stockEntry);
-
-                    boolean isAvailable = stockMap.executeOnKey(line.getProductId(), new ReservationEntryProcessor(requestedQuantity));
-
                     jdbcTemplate.update("UPDATE stock SET "
                                     + "reserved_quantity = reserved_quantity + ?, "
                                     + "available_quantity = available_quantity - ? "
@@ -68,6 +65,23 @@ public class StockService {
                             line.getQuantity(),
                             line.getQuantity(),
                             line.getProductId());
+
+//                    int requestedQuantity = line.getQuantity();
+//                    StockEntry stockEntry = stockMap.get(line.getProductId());
+//                    if (stockEntry == null) {
+//                        stockEntry = stockRepository.findById(line.getProductId()).orElseThrow(IllegalArgumentException::new);
+//                        stockMap.put(line.getProductId(), stockEntry);
+//                    }
+//                    boolean isAvailable = stockMap.executeOnKey(line.getProductId(), new ReservationEntryProcessor(requestedQuantity));
+//                    if (isAvailable) {
+//                        jdbcTemplate.update("UPDATE stock SET "
+//                                        + "reserved_quantity = reserved_quantity + ?, "
+//                                        + "available_quantity = available_quantity - ? "
+//                                        + "WHERE product_id = ?",
+//                                line.getQuantity(),
+//                                line.getQuantity(),
+//                                line.getProductId());
+//                    }
                 }));
         var orderId = orderRepository.save(order);
         kafkaTemplate.send("payment-request", PaymentRequestModel.builder()
@@ -84,6 +98,10 @@ public class StockService {
 
         txTemplate.executeWithoutResult(status -> {
             orderLines.forEach(line -> {
+                IMap<String, StockEntry> stockMap = hzClient.getMap("stock");
+                stockMap.executeOnKey(line.getProductId(), new PaymentFinishedEntryProcessor(paymentFinished.isSuccess(),
+                        line.getProductId(),
+                        line.getQuantity()));
                 jdbcTemplate.update("UPDATE stock SET reserved_quantity = reserved_quantity - ? "
                                 + "WHERE product_id = ?",
                         line.getQuantity(),
