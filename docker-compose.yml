@@ -4,6 +4,8 @@ services:
     image: postgres:latest
     ports:
       - 5432:5432
+    volumes:
+      - ./postgresql.conf:/etc/postgresql/postgresql.conf
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -28,7 +30,7 @@ services:
       - ./stock-service/target/classes:/opt/hazelcast/ext/stock-service
       - ./hz-common/target/classes:/opt/hazelcast/ext/hz-common
     environment:
-      JAVA_OPTS: "-Dhazelcast.config=/opt/hz-member-config.yaml"
+      JAVA_OPTS: "-Dhazelcast.config=/opt/hz-member-config.yaml -Dhazelcast.slow.operation.detector.stacktrace.logging.enabled=true"
       CLASSPATH: "/opt/hazelcast/ext/hz-common:/opt/hazelcast/ext/stock-service"
   stock-service:
     image: openjdk:11

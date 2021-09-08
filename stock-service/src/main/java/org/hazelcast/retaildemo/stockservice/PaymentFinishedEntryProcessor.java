@@ -16,12 +16,14 @@ public class PaymentFinishedEntryProcessor implements EntryProcessor<String, Sto
     @Override
     public Void process(Map.Entry<String, StockEntry> mapEntry) {
         StockEntry stockEntry = mapEntry.getValue();
+        System.out.println("START PaymentFinished " + stockEntry.getProductId() + " at " + Thread.currentThread().getName());
         stockEntry.decReserved(quantity);
         if (!isSuccess) {
+            System.out.println("END-EARLY PaymentFinished " + stockEntry.getProductId() + " at " + Thread.currentThread().getName());
             stockEntry.incAvailable(quantity);
         }
         mapEntry.setValue(stockEntry);
-        System.out.println("processed paymentFinished at " + Thread.currentThread().getName());
+        System.out.println("END PaymentFinished " + stockEntry.getProductId() + " at " + Thread.currentThread().getName());
         return null;
     }
 }

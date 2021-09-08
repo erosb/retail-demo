@@ -3,5 +3,9 @@ hazelcast:
     stock:
       map-store:
         enabled: true
-        class-name: org.hazelcast.retaildemo.StockMapStore
+        factory-class-name: org.hazelcast.retaildemo.StockMapStoreFactory
+        properties:
+          connectionUrl: jdbc:postgresql://db:5432/hz-demo
+          username: postgres
+          password: postgres
 
