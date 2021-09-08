@@ -10,7 +10,6 @@ import java.util.Map;
 public class PaymentFinishedEntryProcessor implements EntryProcessor<String, StockEntry, Void> {
 
     private final boolean isSuccess;
-    private final String productId;
     private final int quantity;
 
     @Override

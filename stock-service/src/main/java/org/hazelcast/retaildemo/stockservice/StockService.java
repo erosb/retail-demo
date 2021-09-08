@@ -101,7 +101,6 @@ public class StockService {
             orderLines.forEach(line -> {
                 IMap<String, StockEntry> stockMap = hzClient.getMap("stock");
                 stockMap.executeOnKey(line.getProductId(), new PaymentFinishedEntryProcessor(paymentFinished.isSuccess(),
-                        line.getProductId(),
                         line.getQuantity()));
                 jdbcTemplate.update("UPDATE stock SET reserved_quantity = reserved_quantity - ? "
                                 + "WHERE product_id = ?",
