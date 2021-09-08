@@ -19,10 +19,10 @@ services:
     environment:
       ALLOW_PLAINTEXT_LISTENER: "yes"
       KAFKA_CFG_ZOOKEEPER_CONNECT: zookeeper:2181
-  hz-member:
-    image: hazelcast/hazelcast:5.0-BETA-2
-    ports:
-      - 5701:5701
+#  hz-member:
+#    image: hazelcast/hazelcast:5.0-BETA-2
+#    ports:
+#      - 5701:5701
   stock-service:
     image: openjdk:11
     ports:
@@ -32,7 +32,6 @@ services:
     entrypoint: "java -jar /opt/stock-service.jar"
     depends_on:
       - kafka
-      - hz-member
       - db
   webshop:
     image: openjdk:11
