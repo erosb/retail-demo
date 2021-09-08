@@ -13,7 +13,6 @@ public class StockEntry implements Serializable {
     private String productId;
     private int availableQuantity;
     private int reservedQuantity;
-    private int unitPrice;
 
     public void incAvailable(int quantity) {
         availableQuantity += quantity;
@@ -32,6 +31,6 @@ public class StockEntry implements Serializable {
     }
 
     public StockEntry() {
-        this("", 0, 0, 0);
+        this("", 0, 0);
     }
 }

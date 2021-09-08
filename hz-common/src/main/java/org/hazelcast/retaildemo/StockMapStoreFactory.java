@@ -18,11 +18,11 @@ public class StockMapStoreFactory
             extends MapStoreAdapter<String, StockEntry> {
 
         private static final String STORE_SQL_STMT =
-                "INSERT INTO stock (product_id, available_quantity, reserved_quantity, unit_price) "
-                        + "VALUES (?, ?, ?, ?) "
-                        + "ON CONFLICT (product_id) DO UPDATE SET available_quantity = ?, reserved_quantity = ?, unit_price = ?";
+                "INSERT INTO stock (product_id, available_quantity, reserved_quantity) "
+                        + "VALUES (?, ?, ?) "
+                        + "ON CONFLICT (product_id) DO UPDATE SET available_quantity = ?, reserved_quantity = ?";
 
-        private static final String LOAD_SQL_STMT = "SELECT available_quantity, reserved_quantity, unit_price "
+        private static final String LOAD_SQL_STMT = "SELECT available_quantity, reserved_quantity "
                 + "FROM stock WHERE product_id = ?";
 
         private final Connection conn;
@@ -52,10 +52,8 @@ public class StockMapStoreFactory
                 stmt.setString(1, key);
                 stmt.setInt(2, value.getAvailableQuantity());
                 stmt.setInt(3, value.getReservedQuantity());
-                stmt.setInt(4, value.getUnitPrice());
-                stmt.setInt(5, value.getAvailableQuantity());
-                stmt.setInt(6, value.getReservedQuantity());
-                stmt.setInt(7, value.getUnitPrice());
+                stmt.setInt(4, value.getAvailableQuantity());
+                stmt.setInt(5, value.getReservedQuantity());
                 stmt.executeUpdate();
             } catch (SQLException e) {
                 throw new RuntimeException(e);
@@ -72,7 +70,6 @@ public class StockMapStoreFactory
                             .productId(key)
                             .availableQuantity(rs.getInt("available_quantity"))
                             .reservedQuantity(rs.getInt("reserved_quantity"))
-                            .unitPrice(rs.getInt("unit_price"))
                             .build();
                 }
                 rs.close();
