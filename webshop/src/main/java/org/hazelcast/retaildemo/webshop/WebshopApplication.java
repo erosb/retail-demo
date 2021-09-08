@@ -22,26 +22,26 @@ public class WebshopApplication {
     private static final String NEW_ORDERS = "new-orders";
 
     private static final List<String> PRODUCT_IDS = List.of(
-            "IGI6DQ",
-            "BOZ80T",
-            "K8HIU3",
-            "JDE7YU",
-            "GAVWDH",
-            "PWM0BB",
-            "7KYXIM",
-            "G8UKJM",
-            "U4YNK1",
-            "822GWT",
-            "GIRJNC",
-            "7282Y1",
-            "4IYCKU",
-            "PP46UO",
-            "9CT7C4",
-            "TNQ4MS",
-            "GSN64K",
-            "9P7BMH",
-            "9LE1TN",
-            "AX3MRO"
+            "WXS9AG",
+            "WXTJN9",
+            "O9EX67",
+            "EU1LG5",
+            "HDQGWJ",
+            "KQBWZ7",
+            "J3H82O",
+            "BPGFYV",
+            "5H0SMI",
+            "BHRQ8P",
+            "F5TY38",
+            "H9VH0C",
+            "HV547Q",
+            "G7R3FQ",
+            "JX5GJA",
+            "4O8XGO",
+            "FXL960",
+            "GFR3TV",
+            "7W3PSW",
+            "9G4OMW"
     );
 
     public static void main(String[] args) {

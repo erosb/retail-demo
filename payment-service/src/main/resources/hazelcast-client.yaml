@@ -1,0 +1,7 @@
+hazelcast-client:
+  network:
+    cluster-members:
+      - hz-member
+  near-cache:
+    products:
+      time-to-live-seconds: 1800

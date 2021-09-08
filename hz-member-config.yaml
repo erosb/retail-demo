@@ -8,4 +8,11 @@ hazelcast:
           connectionUrl: jdbc:postgresql://db:5432/hz-demo
           username: postgres
           password: postgres
-
+    products:
+      map-store:
+        enabled: true
+        factory-class-name: org.hazelcast.retaildemo.ProductMapStoreFactory
+        properties:
+          connectionUrl: jdbc:postgresql://db:5432/hz-demo
+          username: postgres
+          password: postgres
