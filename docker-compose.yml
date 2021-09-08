@@ -11,7 +11,7 @@ services:
   zookeeper:
     image: bitnami/zookeeper:latest
     environment:
-        ALLOW_ANONYMOUS_LOGIN: "yes"
+      ALLOW_ANONYMOUS_LOGIN: "yes"
   kafka:
     image: bitnami/kafka
     depends_on:
@@ -33,7 +33,7 @@ services:
   stock-service:
     image: openjdk:11
     ports:
-     - 8082
+      - 8082
     volumes:
       - ./stock-service/target/stock-service-0.0.1-SNAPSHOT.jar:/opt/stock-service.jar
     entrypoint: "java -jar /opt/stock-service.jar"
@@ -59,4 +59,3 @@ services:
     entrypoint: "java -jar /opt/payment-service.jar"
     depends_on:
       - kafka
-

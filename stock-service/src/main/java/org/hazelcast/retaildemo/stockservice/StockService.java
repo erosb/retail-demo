@@ -3,15 +3,14 @@ package org.hazelcast.retaildemo.stockservice;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
+import lombok.extern.slf4j.Slf4j;
 import org.hazelcast.retaildemo.StockEntry;
 import org.hazelcast.retaildemo.sharedmodels.OrderModel;
 import org.hazelcast.retaildemo.sharedmodels.PaymentFinishedModel;
 import org.hazelcast.retaildemo.sharedmodels.PaymentRequestModel;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -25,9 +24,6 @@ public class StockService {
     }
 
     @Autowired
-    private JdbcTemplate jdbcTemplate;
-
-    @Autowired
     private TransactionTemplate txTemplate;
 
     @Autowired
@@ -35,9 +31,6 @@ public class StockService {
 
     @Autowired
     private OrderRepository orderRepository;
-
-    @Autowired
-    private StockRepository stockRepository;
 
     private final HazelcastInstance hzClient = HazelcastClient.newHazelcastClient();
 
@@ -66,9 +59,10 @@ public class StockService {
         txTemplate.executeWithoutResult(status -> {
             orderLines.forEach(line -> {
                 IMap<String, StockEntry> stockMap = hzClient.getMap("stock");
-                stockMap.executeOnKey(line.getProductId(), new PaymentFinishedEntryProcessor(paymentFinished.isSuccess(),
-                        line.getProductId(),
-                        line.getQuantity()));
+                stockMap.executeOnKey(line.getProductId(), new PaymentFinishedEntryProcessor(
+                        paymentFinished.isSuccess(),
+                        line.getQuantity())
+                );
             });
             status.flush();
         });
