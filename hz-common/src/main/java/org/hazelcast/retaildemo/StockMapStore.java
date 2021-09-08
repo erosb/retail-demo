@@ -5,9 +5,9 @@ import com.hazelcast.map.MapStoreAdapter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class StockMapStore
         extends MapStoreAdapter<String, StockEntry> {
@@ -16,9 +16,10 @@ public class StockMapStore
             "INSERT INTO stock (product_id, available_quantity, reserved_quantity, unit_price) "
                     + "VALUES (?, ?, ?, ?) "
                     + "ON CONFLICT (product_id) DO UPDATE SET available_quantity = ?, reserved_quantity = ?, unit_price = ?";
-    private final Connection conn;
 
-    private final ConcurrentHashMap<String, StockEntry> store = new ConcurrentHashMap<>();
+    public static final String LOAD_SQL_STMT = "SELECT available_quantity, reserved_quantity, unit_price "
+            + "FROM stock WHERE product_id = ?";
+    private final Connection conn;
 
     public StockMapStore(Properties props) {
         try {
@@ -26,8 +27,6 @@ public class StockMapStore
                     props.getProperty("username"), props.getProperty("password"));
             conn.setAutoCommit(true);
 //            storeStatement = conn.prepareStatement(STORE_SQL_STMT);
-//            loadStatement = conn.prepareStatement(
-//                    ("SELECT * FROM stock WHERE product_id = ?", "SELECT available_quantity, reserved_quantity, unit_price"));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -86,22 +85,21 @@ public class StockMapStore
 
     @Override
     public StockEntry load(String key) {
-        return store.get(key);
-//        try (PrepPsta
-//        ){
-//            loadStatement.setString(1, key);
-//            ResultSet rs = loadStatement.executeQuery();
-//            if (rs.next()) {
-//                return StockEntry.builder()
-//                        .productId(key)
-//                        .availableQuantity(rs.getInt("available_quantity"))
-//                        .reservedQuantity(rs.getInt("reserved_quantity"))
-//                        .unitPrice(rs.getInt("unit_price"))
-//                        .build();
-//            }
-//            rs.close();
-//        } catch (SQLException e) {
-//            throw new RuntimeException();
-//        }
+        try (PreparedStatement loadStatement = conn.prepareStatement(LOAD_SQL_STMT)) {
+            loadStatement.setString(1, key);
+            ResultSet rs = loadStatement.executeQuery();
+            if (rs.next()) {
+                return StockEntry.builder()
+                        .productId(key)
+                        .availableQuantity(rs.getInt("available_quantity"))
+                        .reservedQuantity(rs.getInt("reserved_quantity"))
+                        .unitPrice(rs.getInt("unit_price"))
+                        .build();
+            }
+            rs.close();
+        } catch (SQLException e) {
+            throw new RuntimeException();
+        }
+        return null;
     }
 }

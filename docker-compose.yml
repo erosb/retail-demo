@@ -4,8 +4,6 @@ services:
     image: postgres:latest
     ports:
       - 5432:5432
-    volumes:
-      - ./postgresql.conf:/etc/postgresql/postgresql.conf
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres

@@ -14,7 +14,7 @@ public class ReservationEntryProcessor implements EntryProcessor<String, StockEn
     @Override
     public Boolean process(Map.Entry<String, StockEntry> mapEntry) {
         org.hazelcast.retaildemo.StockEntry entry = mapEntry.getValue();
-        if (entry.getAvailableQuantity() == 0L) {
+        if (entry != null && entry.getAvailableQuantity() == 0L) {
             return false;
         }
         entry.incReserved(requestedQuantity);
