@@ -24,9 +24,6 @@ public class StockService {
     }
 
     @Autowired
-    private TransactionTemplate txTemplate;
-
-    @Autowired
     private KafkaTemplate<String, PaymentRequestModel> kafkaTemplate;
 
     @Autowired
@@ -38,11 +35,10 @@ public class StockService {
     public void newOrder(OrderModel order) {
         log.info("received new-orders: {}", order);
         IMap<String, StockEntry> stockMap = hzClient.getMap("stock");
-        txTemplate.executeWithoutResult(status ->
-                order.getOrderLines().forEach(line -> {
-                    int requestedQuantity = line.getQuantity();
-                    stockMap.executeOnKey(line.getProductId(), new ReservationEntryProcessor(requestedQuantity));
-                }));
+        order.getOrderLines().forEach(line -> {
+            int requestedQuantity = line.getQuantity();
+            stockMap.executeOnKey(line.getProductId(), new ReservationEntryProcessor(requestedQuantity));
+        });
         var orderId = orderRepository.save(order);
         kafkaTemplate.send("payment-request", PaymentRequestModel.builder()
                 .orderId(orderId)
@@ -55,16 +51,13 @@ public class StockService {
         log.info("received paymentFinished: {}", paymentFinished);
         Long orderId = paymentFinished.getOrderId();
         var orderLines = orderRepository.findOrderLinesByOrderId(orderId);
-
-        txTemplate.executeWithoutResult(status -> {
-            orderLines.forEach(line -> {
-                IMap<String, StockEntry> stockMap = hzClient.getMap("stock");
-                stockMap.executeOnKey(line.getProductId(), new PaymentFinishedEntryProcessor(
-                        paymentFinished.isSuccess(),
-                        line.getQuantity())
-                );
-            });
-            status.flush();
-        });
+        orderLines.forEach(line -> {
+                    IMap<String, StockEntry> stockMap = hzClient.getMap("stock");
+                    stockMap.executeOnKey(line.getProductId(), new PaymentFinishedEntryProcessor(
+                            paymentFinished.isSuccess(),
+                            line.getQuantity())
+                    );
+                }
+        );
     }
 }
