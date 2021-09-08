@@ -15,7 +15,7 @@ public class StockRepository {
 
     public Optional<StockEntry> findById(String id) {
         return Optional.ofNullable(
-                jdbcTemplate.query("SELECT available_quantity, reserved_quantity, unit_price FROM stock WHERE product_id = ?",
+                jdbcTemplate.query("SELECT available_quantity, reserved_quantity FROM stock WHERE product_id = ?",
                         rs -> {
                             if (!rs.next()) {
                                 return null;
@@ -23,7 +23,6 @@ public class StockRepository {
                             return StockEntry.builder()
                                     .availableQuantity(rs.getInt("available_quantity"))
                                     .reservedQuantity(rs.getInt("reserved_quantity"))
-                                    .unitPrice(rs.getInt("unit_price"))
                                     .productId(id)
                                     .build();
                         }, id));

@@ -12,7 +12,6 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
             </column>
             <column name="available_quantity" type="bigint" />
             <column name="reserved_quantity" type="bigint" />
-            <column name="unit_price" type="varchar(10)" />
         </createTable>
 
         <createTable tableName="address">
