@@ -36,19 +36,13 @@ public class JetJobSubmitter
 
     @Override
     public void run() {
-
         ServiceFactory<?, OrderLineDatabaseReader> serviceFactory = ServiceFactories.sharedService(
                 ctx -> new OrderLineDatabaseReader());
         StreamSource<Map.Entry<String, ObjectNode>> source = KafkaSources.kafka(kafkaProps, "payment-finished");
         Pipeline pipeline = Pipeline.create();
-        pipeline.readFrom(source).withoutTimestamps()
-                //                .map(entry -> dummy(entry.getValue()))
+        pipeline.readFrom(source).withIngestionTimestamps()
                 .map(entry -> jsonToDomainObj(entry.getValue()))
-                //                .map(dummy -> Util.entry(dummy.getKey(), jsonToDomainObj(dummy.getValue())))
                 .filter(PaymentFinishedModel::isSuccess)
-//                .map(paymentFinished -> Util.entry(paymentFinished.getOrderId(), paymentFinished))
-
-                //                                                .filter(entry -> entry.getValue().isSuccess())
                 .mapUsingService(serviceFactory, (orderLineDatabaseReader, paymentFinished) -> {
                     List<ShippableOrderLine> orderLines = orderLineDatabaseReader.findOrderLinesByOrderId(
                             paymentFinished.getOrderId());
@@ -61,18 +55,13 @@ public class JetJobSubmitter
                 })
                 .<Long, AddressModel, ShippableOrder>mapUsingIMap("shipping_addresses",
                         order -> order.getOrderId(),
-                        (order, address) ->  order.toBuilder()
-                            .deliveryAddress(address)
-                            .build()
+                        (order, address) -> order.toBuilder()
+                                .deliveryAddress(address)
+                                .build()
                 )
                 .map(shippableOrder -> Util.entry(shippableOrder.getOrderId(), shippableOrder))
                 .peek()
                 .writeTo(Sinks.map("shippable_orders"));
         hzClient.getJet().newJob(pipeline);
     }
-
-    private Object dummy(ObjectNode value) {
-        return value;
-    }
-
 }

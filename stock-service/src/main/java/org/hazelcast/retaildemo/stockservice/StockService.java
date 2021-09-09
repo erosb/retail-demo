@@ -66,6 +66,7 @@ public class StockService {
             stockMap.executeOnKey(line.getProductId(), new ReservationEntryProcessor(requestedQuantity));
         });
         var orderId = orderRepository.save(order);
+        hzClient.getMap("shipping_addresses").put(orderId, order.getShippingAddress());
         kafkaTemplate.send("payment-request", PaymentRequestModel.builder()
                 .orderId(orderId)
                 .orderLines(order.getOrderLines())
