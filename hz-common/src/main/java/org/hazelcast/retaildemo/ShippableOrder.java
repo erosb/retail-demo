@@ -3,11 +3,12 @@ package org.hazelcast.retaildemo;
 import lombok.Builder;
 import lombok.Value;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Value
 @Builder(toBuilder = true)
-public class ShippableOrder {
+public class ShippableOrder implements Serializable {
     Long orderId;
     AddressModel deliveryAddress;
     String transactionId;

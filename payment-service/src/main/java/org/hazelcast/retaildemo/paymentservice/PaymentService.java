@@ -18,6 +18,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 @SpringBootApplication
 @Slf4j
 public class PaymentService {
@@ -59,10 +62,20 @@ public class PaymentService {
 
         calculatePayableOrder(paymentRequest);
 
+        String randomTransactionId = randomTransactionId();
         kafkaTemplate.send(PAYMENT_FINISHED, paymentRequest.getOrderId().toString(), PaymentFinishedModel.builder()
                 .orderId(paymentRequest.getOrderId())
                 .isSuccess(randomSuccessOrFailure())
+                        .transactionId(randomTransactionId)
+                        .invoiceDocUrl("S3://retail-demo/invoice-" + randomTransactionId + ".pdf")
                 .build());
+    }
+
+    private static String randomTransactionId() {
+        return IntStream.range(0, 16).mapToObj(__ -> Math.random())
+                .map(rnd -> '0' + ((int)(rnd * 10)))
+                .map(String::valueOf)
+                .collect(Collectors.joining());
     }
 
     private void calculatePayableOrder(PaymentRequestModel paymentRequest) {

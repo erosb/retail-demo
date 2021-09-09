@@ -3,9 +3,11 @@ package org.hazelcast.retaildemo;
 import lombok.Builder;
 import lombok.Value;
 
+import java.io.Serializable;
+
 @Value
 @Builder(toBuilder = true)
-public class ShippableOrderLine {
+public class ShippableOrderLine implements Serializable {
 
     String productId;
     String productDescription;

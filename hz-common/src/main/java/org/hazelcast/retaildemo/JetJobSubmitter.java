@@ -13,8 +13,11 @@ import com.hazelcast.jet.pipeline.Sinks;
 import com.hazelcast.jet.pipeline.StreamSource;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
+import static java.util.stream.Collectors.toList;
 
 @RequiredArgsConstructor
 public class JetJobSubmitter
@@ -37,35 +40,36 @@ public class JetJobSubmitter
     @Override
     public void run() {
 
-        ServiceFactory<?, OrderLineReader> serviceFactory = ServiceFactories.sharedService(
-                ctx -> new OrderLineReader());
+        ServiceFactory<?, OrderLineDatabaseReader> serviceFactory = ServiceFactories.sharedService(
+                ctx -> new OrderLineDatabaseReader());
         StreamSource<Map.Entry<String, ObjectNode>> source = KafkaSources.kafka(kafkaProps, "payment-finished");
         Pipeline pipeline = Pipeline.create();
         pipeline.readFrom(source).withoutTimestamps()
-//                .map(entry -> dummy(entry.getValue()))
+                //                .map(entry -> dummy(entry.getValue()))
                 .map(entry -> jsonToDomainObj(entry.getValue()))
-//                .map(dummy -> Util.entry(dummy.getKey(), jsonToDomainObj(dummy.getValue())))
+                //                .map(dummy -> Util.entry(dummy.getKey(), jsonToDomainObj(dummy.getValue())))
+                .filter(PaymentFinishedModel::isSuccess)
+//                .map(paymentFinished -> Util.entry(paymentFinished.getOrderId(), paymentFinished))
 
-                .peek()
-                .map(paymentFinished -> Util.entry(paymentFinished.getOrderId(), paymentFinished))
-
-//                                                .filter(entry -> entry.getValue().isSuccess())
-                //                .mapUsingService(serviceFactory, (orderLineReader, paymentFinishedEntry) -> {
-                //                    PaymentFinishedModel paymentFinishedEntryValue = paymentFinishedEntry.getValue();
-                //                    List<OrderLineModel> orderLines = orderLineReader.findOrderLinesByOrderId(
-                //                            paymentFinishedEntryValue.getOrderId());
-                //                    return ShippableOrder.builder()
-                //                            .invoiceDocUrl(paymentFinishedEntryValue.getInvoiceDocUrl())
-                //                            .orderLines(orderLines.stream()
-                //                                    .map(orderLine -> ShippableOrderLine.builder()
-                //                                            .productId(orderLine.getProductId())
-                //                                            .quantity(orderLine.getQuantity())
-                //                                            .build()
-                //                                    ).collect(toList()))
-                //                            .build();
-                //                })
+                //                                                .filter(entry -> entry.getValue().isSuccess())
+                .mapUsingService(serviceFactory, (orderLineDatabaseReader, paymentFinished) -> {
+                    List<OrderLineModel> orderLines = orderLineDatabaseReader.findOrderLinesByOrderId(
+                            paymentFinished.getOrderId());
+                    return ShippableOrder.builder()
+                            .orderId(paymentFinished.getOrderId())
+                            .transactionId(paymentFinished.getTransactionId())
+                            .invoiceDocUrl(paymentFinished.getInvoiceDocUrl())
+                            .orderLines(orderLines.stream()
+                                    .map(orderLine -> ShippableOrderLine.builder()
+                                            .productId(orderLine.getProductId())
+                                            .quantity(orderLine.getQuantity())
+                                            .build()
+                                    ).collect(toList()))
+                            .build();
+                })
                 //                //                .mapUsingIMap("products", entry -> entry.getKey(), (order, product) -> 3)
-                //                .map(shippableOrder -> Map.entry(shippableOrder.getOrderId(), shippableOrder))
+                .map(shippableOrder -> Util.entry(shippableOrder.getOrderId(), shippableOrder))
+                .peek()
                 .writeTo(Sinks.map("shippable_orders"));
         hzClient.getJet().newJob(pipeline);
     }
