@@ -24,6 +24,8 @@ import org.springframework.kafka.core.KafkaTemplate;
 
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 @SpringBootApplication
 @Slf4j
@@ -49,19 +51,21 @@ public class StockService {
             properties.put("value.deserializer", JsonDeserializer.class.getName());
             properties.put("bootstrap.servers", "kafka:9092");
             properties.put("auto.offset.reset", "earliest");
-            StreamSource<Map.Entry<String, PaymentFinishedModel>> source = KafkaSources.kafka(properties, "payment-finished");
 
-            Pipeline pl = Pipeline.create();
-            pl.readFrom(source).withoutTimestamps()
-//                    .writeTo(Sinks.files("/tmp"))
-                    .writeTo(Sinks.map("shippable_orders"))
-            ;
-            hzClient.getJet().newJob(pl);
 
-            for (;;) {
-                Thread.sleep(2000);
-                System.out.println("shippable order count: " + hzClient.getMap("shippable_orders").size());
-            }
+            new ScheduledThreadPoolExecutor(4).schedule(() -> {
+                StreamSource<Map.Entry<String, PaymentFinishedModel>> source = KafkaSources.kafka(properties, "payment-finished");
+
+                Pipeline pl = Pipeline.create();
+                pl.readFrom(source).withoutTimestamps().writeTo(Sinks.map("shippable_orders"));
+                hzClient.getJet().newJob(pl);
+
+                for (;;) {
+                    Thread.sleep(2000);
+                    System.out.println("shippable order count: " + hzClient.getMap("shippable_orders").size());
+                }
+            }, 5, TimeUnit.SECONDS);
+
         };
     }
 
