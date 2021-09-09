@@ -16,3 +16,7 @@ hazelcast:
           connectionUrl: jdbc:postgresql://db:5432/hz-demo
           username: postgres
           password: postgres
+  jet:
+    enabled: true
+  user-code-deployment:
+    enabled: true

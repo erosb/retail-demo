@@ -59,7 +59,7 @@ public class PaymentService {
 
         calculatePayableOrder(paymentRequest);
 
-        kafkaTemplate.send(PAYMENT_FINISHED, PaymentFinishedModel.builder()
+        kafkaTemplate.send(PAYMENT_FINISHED, paymentRequest.getOrderId().toString(), PaymentFinishedModel.builder()
                 .orderId(paymentRequest.getOrderId())
                 .isSuccess(randomSuccessOrFailure())
                 .build());

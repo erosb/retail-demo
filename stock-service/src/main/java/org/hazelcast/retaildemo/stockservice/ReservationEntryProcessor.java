@@ -13,7 +13,6 @@ public class ReservationEntryProcessor implements EntryProcessor<String, StockEn
 
     @Override
     public Boolean process(Map.Entry<String, StockEntry> mapEntry) {
-        System.out.println("ReservationEntryProcessor: " + mapEntry.getKey());
         StockEntry entry = mapEntry.getValue();
         if (entry.getAvailableQuantity() < requestedQuantity) {
             return false;

@@ -2,3 +2,5 @@ hazelcast-client:
   network:
     cluster-members:
       - hz-member
+#  user-code-deployment:
+#    enabled: true

@@ -22,14 +22,15 @@ services:
   hz-member:
     image: hazelcast/hazelcast:5.0-BETA-2
     ports:
-      - 5701:5701
+      - "5701-5800:5701"
     volumes:
       - ./hz-member-config.yaml:/opt/hz-member-config.yaml
       - ./stock-service/target/classes:/opt/hazelcast/ext/stock-service
       - ./hz-common/target/classes:/opt/hazelcast/ext/hz-common
+      - /home/erosb/.m2/repository/org/apache/kafka/connect-json/2.2.2/connect-json-2.2.2.jar:/opt/hazelcast/ext/connect-json-2.2.2.jar
     environment:
       JAVA_OPTS: "-Dhazelcast.config=/opt/hz-member-config.yaml -Dhazelcast.slow.operation.detector.stacktrace.logging.enabled=true"
-      CLASSPATH: "/opt/hazelcast/ext/hz-common:/opt/hazelcast/ext/stock-service"
+      CLASSPATH: "/opt/hazelcast/ext/hz-common:/opt/hazelcast/ext/stock-service:/opt/hazelcast/ext/connect-json-2.2.2.jar"
   stock-service:
     image: openjdk:11
     ports:
@@ -41,6 +42,7 @@ services:
       - kafka
       - hz-member
       - db
+      - payment-service
   webshop:
     image: openjdk:11
     ports:
