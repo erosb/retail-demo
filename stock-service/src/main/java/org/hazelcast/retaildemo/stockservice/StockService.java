@@ -74,7 +74,7 @@ public class StockService {
 
     @KafkaListener(topics = "payment-finished", groupId = "test")
     public void paymentFinished(PaymentFinishedModel paymentFinished) {
-        log.info("received paymentFinished: {}", paymentFinished);
+//        log.info("received paymentFinished: {}", paymentFinished);
         Long orderId = paymentFinished.getOrderId();
         var orderLines = orderRepository.findOrderLinesByOrderId(orderId);
         orderLines.forEach(line -> {

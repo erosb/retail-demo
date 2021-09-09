@@ -54,7 +54,7 @@ public class OrderRepository {
                 return ps;
             }, orderIdHolder);
             Long orderId = (Long) orderIdHolder.getKeys().get("order_id");
-            log.info("persisted order with id={}", orderId);
+//            log.info("persisted order with id={}", orderId);
             order.getOrderLines().forEach(line -> {
                 jdbcTemplate.update("INSERT INTO order_line (order_id, product_id, quantity) VALUES (?, ?, ?)",
                         orderId, line.getProductId(), line.getQuantity());
