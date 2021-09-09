@@ -33,6 +33,7 @@ public class OrderLineDatabaseReader {
                                 .quantity(rs.getInt("quantity"))
                                 .productDescription(rs.getString("description"))
                                 .unitPrice(rs.getInt("unit_price"))
+                                .totalPrice(rs.getInt("unit_price") * rs.getInt("quantity"))
                         .build());
             }
             return rval;

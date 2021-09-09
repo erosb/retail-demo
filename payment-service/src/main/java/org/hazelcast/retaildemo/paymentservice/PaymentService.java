@@ -1,5 +1,6 @@
 package org.hazelcast.retaildemo.paymentservice;
 
+import com.hazelcast.aggregation.Aggregators;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;

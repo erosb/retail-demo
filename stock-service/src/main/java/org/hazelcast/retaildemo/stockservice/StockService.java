@@ -3,10 +3,13 @@ package org.hazelcast.retaildemo.stockservice;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
+import com.hazelcast.query.Predicate;
+import com.hazelcast.query.Predicates;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.connect.json.JsonDeserializer;
 import org.hazelcast.retaildemo.JetJobSubmitter;
+import org.hazelcast.retaildemo.ShippableOrder;
 import org.hazelcast.retaildemo.StockEntry;
 import org.hazelcast.retaildemo.OrderModel;
 import org.hazelcast.retaildemo.PaymentFinishedModel;
@@ -51,8 +54,16 @@ public class StockService {
             properties.put("auto.offset.reset", "earliest");
 
             executor.schedule(new JetJobSubmitter(hzClient, properties), 5, TimeUnit.SECONDS);
+
             executor.scheduleWithFixedDelay(() -> {
-                System.out.println("shippable order count: " + hzClient.getMap("shippable_orders").size());
+                Predicate<Long, ShippableOrder> pred = Predicates.and(
+                        Predicates.equal("shippingAddress.postalCode", 4030),
+                        Predicates.greaterThan("orderLines[any].totalPrice", 200)
+                );
+                IMap<Long, ShippableOrder> shippableOrders = hzClient.getMap("shippable_orders");
+
+                shippableOrders.values(pred)
+                        .forEach(order -> System.out.println("matching order found, orderId=" + order.getOrderId()));
             }, 5, 2, TimeUnit.SECONDS);
         };
     }
