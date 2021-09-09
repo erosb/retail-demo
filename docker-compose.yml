@@ -23,9 +23,12 @@ services:
     image: hazelcast/management-center:5.0-BETA-2
     ports:
       - "8080:8080"
+    volumes:
+      - ./hz-common/target/classes:/opt/classpath
     environment:
       HZ_MC_CLUSTER: dev
       HZ_MC_MEMBERS: hz-member
+      MC_CLASSPATH: /opt/classpath
   hz-member:
     image: hazelcast/hazelcast:5.0-BETA-2
     ports:
