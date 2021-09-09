@@ -1,4 +1,4 @@
-package org.hazelcast.retaildemo.sharedmodels;
+package org.hazelcast.retaildemo;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

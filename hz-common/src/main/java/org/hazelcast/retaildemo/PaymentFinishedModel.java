@@ -1,4 +1,4 @@
-package org.hazelcast.retaildemo.sharedmodels;
+package org.hazelcast.retaildemo;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,8 +13,10 @@ public class PaymentFinishedModel implements Serializable {
 
     boolean isSuccess;
     Long orderId;
+    String transactionId;
+    String invoiceDocUrl;
 
     public PaymentFinishedModel() {
-        this(false, 0L);
+        this(false, 0L, null, null);
     }
 }

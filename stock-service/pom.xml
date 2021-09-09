@@ -20,13 +20,11 @@
 		<dependency>
 			<groupId>com.hazelcast.jet</groupId>
 			<artifactId>hazelcast-jet-kafka</artifactId>
-			<version>5.0-BETA-2</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.kafka</groupId>
 			<artifactId>connect-json</artifactId>
-			<version>2.2.2</version>
 		</dependency>
 
 

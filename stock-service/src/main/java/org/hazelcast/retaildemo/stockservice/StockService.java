@@ -2,18 +2,15 @@ package org.hazelcast.retaildemo.stockservice;
 
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.jet.kafka.KafkaSources;
-import com.hazelcast.jet.pipeline.Pipeline;
-import com.hazelcast.jet.pipeline.Sinks;
-import com.hazelcast.jet.pipeline.StreamSource;
 import com.hazelcast.map.IMap;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.connect.json.JsonDeserializer;
+import org.hazelcast.retaildemo.JetJobSubmitter;
 import org.hazelcast.retaildemo.StockEntry;
-import org.hazelcast.retaildemo.sharedmodels.OrderModel;
-import org.hazelcast.retaildemo.sharedmodels.PaymentFinishedModel;
-import org.hazelcast.retaildemo.sharedmodels.PaymentRequestModel;
+import org.hazelcast.retaildemo.OrderModel;
+import org.hazelcast.retaildemo.PaymentFinishedModel;
+import org.hazelcast.retaildemo.PaymentRequestModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -22,7 +19,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 
-import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -43,6 +39,8 @@ public class StockService {
 
     private final HazelcastInstance hzClient = HazelcastClient.newHazelcastClient();
 
+    private final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(4);
+
     @Bean
     public ApplicationRunner appRunner() {
         return args -> {
@@ -52,20 +50,10 @@ public class StockService {
             properties.put("bootstrap.servers", "kafka:9092");
             properties.put("auto.offset.reset", "earliest");
 
-
-            new ScheduledThreadPoolExecutor(4).schedule(() -> {
-                StreamSource<Map.Entry<String, PaymentFinishedModel>> source = KafkaSources.kafka(properties, "payment-finished");
-
-                Pipeline pl = Pipeline.create();
-                pl.readFrom(source).withoutTimestamps().writeTo(Sinks.map("shippable_orders"));
-                hzClient.getJet().newJob(pl);
-
-                for (;;) {
-                    Thread.sleep(2000);
-                    System.out.println("shippable order count: " + hzClient.getMap("shippable_orders").size());
-                }
-            }, 5, TimeUnit.SECONDS);
-
+            executor.schedule(new JetJobSubmitter(hzClient, properties), 5, TimeUnit.SECONDS);
+            executor.scheduleWithFixedDelay(() -> {
+                System.out.println("shippable order count: " + hzClient.getMap("shippable_orders").size());
+            }, 5, 2, TimeUnit.SECONDS);
         };
     }
 
@@ -84,18 +72,18 @@ public class StockService {
                 .build());
     }
 
-//    @KafkaListener(topics = "payment-finished", groupId = "test")
-//    public void paymentFinished(PaymentFinishedModel paymentFinished) {
-//        log.info("received paymentFinished: {}", paymentFinished);
-//        Long orderId = paymentFinished.getOrderId();
-//        var orderLines = orderRepository.findOrderLinesByOrderId(orderId);
-//        orderLines.forEach(line -> {
-//                    IMap<String, StockEntry> stockMap = hzClient.getMap("stock");
-//                    stockMap.executeOnKey(line.getProductId(), new PaymentFinishedEntryProcessor(
-//                            paymentFinished.isSuccess(),
-//                            line.getQuantity())
-//                    );
-//                }
-//        );
-//    }
+    @KafkaListener(topics = "payment-finished", groupId = "test")
+    public void paymentFinished(PaymentFinishedModel paymentFinished) {
+        log.info("received paymentFinished: {}", paymentFinished);
+        Long orderId = paymentFinished.getOrderId();
+        var orderLines = orderRepository.findOrderLinesByOrderId(orderId);
+        orderLines.forEach(line -> {
+                    IMap<String, StockEntry> stockMap = hzClient.getMap("stock");
+                    stockMap.executeOnKey(line.getProductId(), new PaymentFinishedEntryProcessor(
+                            paymentFinished.isSuccess(),
+                            line.getQuantity())
+                    );
+                }
+        );
+    }
 }

@@ -1,7 +1,8 @@
 package org.hazelcast.retaildemo.webshop;
 
-import org.hazelcast.retaildemo.sharedmodels.OrderLineModel;
-import org.hazelcast.retaildemo.sharedmodels.OrderModel;
+import org.hazelcast.retaildemo.AddressModel;
+import org.hazelcast.retaildemo.OrderLineModel;
+import org.hazelcast.retaildemo.OrderModel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
@@ -63,6 +64,7 @@ public class WebshopApplication {
 
     private OrderModel createRandomOrder() {
         return OrderModel.builder()
+                .shippingAddress(createRandomAddress())
                 .orderLines(
                         IntStream.range(0, 2 + (int) (Math.random() * 8))
                                 .mapToObj(i -> OrderLineModel.builder()
@@ -71,5 +73,13 @@ public class WebshopApplication {
                                         .build()
                                 ).collect(toList())
                 ).build();
+    }
+
+    private AddressModel createRandomAddress() {
+        return AddressModel.builder()
+                .country("Hungary")
+                .postalCode(String.valueOf(4020 + ((int) (Math.random() * 13))))
+                .streetAddress("Random Street Addr " + ((int) (Math.random() * 200)))
+                .build();
     }
 }
