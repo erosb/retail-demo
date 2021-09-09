@@ -40,7 +40,7 @@ public class StockService {
                     Long avail = jdbcTemplate.queryForObject("SELECT available_quantity FROM stock WHERE product_id = ?",
                             Long.class,
                             line.getProductId());
-                    if (avail == 0L) {
+                    if (avail < line.getQuantity()) {
                         // error handling
                         return;
                     }
