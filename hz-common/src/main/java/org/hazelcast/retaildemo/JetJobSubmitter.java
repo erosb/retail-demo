@@ -13,7 +13,6 @@ import com.hazelcast.jet.pipeline.Sinks;
 import com.hazelcast.jet.pipeline.StreamSource;
 import lombok.RequiredArgsConstructor;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -43,16 +42,14 @@ public class JetJobSubmitter
         pipeline.readFrom(source).withIngestionTimestamps()
                 .map(entry -> jsonToDomainObj(entry.getValue()))
                 .filter(PaymentFinishedModel::isSuccess)
-                .mapUsingService(serviceFactory, (orderLineDatabaseReader, paymentFinished) -> {
-                    List<ShippableOrderLine> orderLines = orderLineDatabaseReader.findOrderLinesByOrderId(
-                            paymentFinished.getOrderId());
-                    return ShippableOrder.builder()
-                            .orderId(paymentFinished.getOrderId())
-                            .transactionId(paymentFinished.getTransactionId())
-                            .invoiceDocUrl(paymentFinished.getInvoiceDocUrl())
-                            .orderLines(orderLines)
-                            .build();
-                })
+                .mapUsingService(serviceFactory, (orderLineDatabaseReader, paymentFinished) ->
+                        ShippableOrder.builder()
+                                .orderId(paymentFinished.getOrderId())
+                                .transactionId(paymentFinished.getTransactionId())
+                                .invoiceDocUrl(paymentFinished.getInvoiceDocUrl())
+                                .orderLines(orderLineDatabaseReader.findOrderLinesByOrderId(paymentFinished.getOrderId()))
+                                .build()
+                )
                 .<Long, AddressModel, ShippableOrder>mapUsingIMap("shipping_addresses",
                         order -> order.getOrderId(),
                         (order, address) -> order.toBuilder()
