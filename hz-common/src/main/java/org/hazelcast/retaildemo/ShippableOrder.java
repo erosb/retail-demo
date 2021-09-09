@@ -10,7 +10,7 @@ import java.util.List;
 @Builder(toBuilder = true)
 public class ShippableOrder implements Serializable {
     Long orderId;
-    AddressModel deliveryAddress;
+    AddressModel shippingAddress;
     String transactionId;
     String invoiceDocUrl;
     List<ShippableOrderLine> orderLines;

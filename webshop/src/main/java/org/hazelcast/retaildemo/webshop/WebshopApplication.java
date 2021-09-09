@@ -56,7 +56,7 @@ public class WebshopApplication {
     public ApplicationRunner applicationRunner() {
         return args -> {
             for (; ; ) {
-                Thread.sleep(500);
+                Thread.sleep(50);
                 kafkaTemplate.send(NEW_ORDERS, createRandomOrder());
             }
         };

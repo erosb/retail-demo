@@ -53,7 +53,7 @@ public class JetJobSubmitter
                 .<Long, AddressModel, ShippableOrder>mapUsingIMap("shipping_addresses",
                         order -> order.getOrderId(),
                         (order, address) -> order.toBuilder()
-                                .deliveryAddress(address)
+                                .shippingAddress(address)
                                 .build()
                 )
                 .map(shippableOrder -> Util.entry(shippableOrder.getOrderId(), shippableOrder))
