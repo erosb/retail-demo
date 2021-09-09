@@ -17,8 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import static java.util.stream.Collectors.toList;
-
 @RequiredArgsConstructor
 public class JetJobSubmitter
         implements Runnable {
@@ -29,7 +27,6 @@ public class JetJobSubmitter
         try {
             return OBJECT_MAPPER.treeToValue(on, PaymentFinishedModel.class);
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
@@ -53,21 +50,21 @@ public class JetJobSubmitter
 
                 //                                                .filter(entry -> entry.getValue().isSuccess())
                 .mapUsingService(serviceFactory, (orderLineDatabaseReader, paymentFinished) -> {
-                    List<OrderLineModel> orderLines = orderLineDatabaseReader.findOrderLinesByOrderId(
+                    List<ShippableOrderLine> orderLines = orderLineDatabaseReader.findOrderLinesByOrderId(
                             paymentFinished.getOrderId());
                     return ShippableOrder.builder()
                             .orderId(paymentFinished.getOrderId())
                             .transactionId(paymentFinished.getTransactionId())
                             .invoiceDocUrl(paymentFinished.getInvoiceDocUrl())
-                            .orderLines(orderLines.stream()
-                                    .map(orderLine -> ShippableOrderLine.builder()
-                                            .productId(orderLine.getProductId())
-                                            .quantity(orderLine.getQuantity())
-                                            .build()
-                                    ).collect(toList()))
+                            .orderLines(orderLines)
                             .build();
                 })
-                //                //                .mapUsingIMap("products", entry -> entry.getKey(), (order, product) -> 3)
+                .<Long, AddressModel, ShippableOrder>mapUsingIMap("shipping_addresses",
+                        order -> order.getOrderId(),
+                        (order, address) ->  order.toBuilder()
+                            .deliveryAddress(address)
+                            .build()
+                )
                 .map(shippableOrder -> Util.entry(shippableOrder.getOrderId(), shippableOrder))
                 .peek()
                 .writeTo(Sinks.map("shippable_orders"));

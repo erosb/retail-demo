@@ -20,15 +20,19 @@ public class OrderLineDatabaseReader {
         }
     }
 
-    public List<OrderLineModel> findOrderLinesByOrderId(Long orderId) {
-        try (PreparedStatement ps = conn.prepareStatement("SELECT * FROM order_line WHERE order_id = ?")) {
+    public List<ShippableOrderLine> findOrderLinesByOrderId(Long orderId) {
+        try (PreparedStatement ps = conn.prepareStatement("SELECT ol.product_id as product_id, quantity, description, unit_price "
+                + "FROM order_line ol JOIN products p ON ol.product_id = p.product_id "
+                + "WHERE order_id = ?")) {
             ps.setLong(1, orderId);
             ResultSet rs = ps.executeQuery();
-            List<OrderLineModel> rval = new ArrayList<>();
+            List<ShippableOrderLine> rval = new ArrayList<>();
             while (rs.next()) {
-                rval.add(OrderLineModel.builder()
+                rval.add(ShippableOrderLine.builder()
                                 .productId(rs.getString("product_id"))
                                 .quantity(rs.getInt("quantity"))
+                                .productDescription(rs.getString("description"))
+                                .unitPrice(rs.getInt("unit_price"))
                         .build());
             }
             return rval;
