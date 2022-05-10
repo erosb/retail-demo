@@ -1,24 +1,25 @@
 # Retail demo
 
-## Kiinduló állapot
+## Initial Condition
 
- - a webshop new-order topicon küld üzeneteket a StockService-nek
- - a StockService:
-    - reserved számot növeli, available-t csökkenti
-    - majd továbbküldi az Order-t a PaymentService-nek
- - a PaymentService aszinkron kommunikálja a webshoppal a fizetési folyamatot
-    - majd üzenet a payment-finished topicra:
+ - the webshop sends messages to StockService on the new-order topic
+ - StockService:
+    - increases the reserved number, decreases the available one
+    - then forwards the Order to the PaymentService
+ - PaymentService communicates the payment process asynchronously with the webshop
+    - then a message on the payment-finished topic:
         * succ/fail
         * Order objektum
 
-Problémák:
- - túl sok helyen ott az Order objektum, address-ekkel együtt
- - ezért tegyük be egy postgres-be az Order-t és a Payment service kapjon egy
- PaymentRequest objektumot:
+Problem:
+ - there are too many places in the Order object, along with addresses
+ - so put the Order in a postgres and the Payment service will get one
+ PaymentRequest objects:
     - orderLines
     - customerId
 
-Szintén postgres-ben akarjuk tárolni a raktárkészletet:
+
+We also want to store the stock in postgres:
 
 order
 -----
@@ -43,55 +44,53 @@ stock
  - reservedQuantity
  - unitPrice
 
-Problémák:
- - az availableQuantity-t, meg a unitPrice-ot mindig DB-ből kell lekérdezni -> lassú lehet
- -? DB írás indexeléstől függetlenül lassú lehet
+Problem:
+- availableQuantity and unitPrice must always be queried from DB -> can be slow
+ -? DB writing can be slow regardless of indexing
 
 
-## Cache-eljük be a stock táblát
+## Cache the stock table
 
-Használjunk Hazelcast IMap-et
+Use Hazelcast IMap
 
 stock: IMap
 productId -> { availableQuantity, reservedQuantity, unitPrice }
 
- - naiv implementáció
+ - naive implementation
  - Entry processor
 
-## Biztos, hogy előrébb vagyunk?
+## Are you sure we're ahead?
 
-near-cache bejön
+near-cache comes in
 
-## Bonyolítsuk:
+## Complication:
 
-Megbízhatatlan PaymentService: nem biztos, hogy minden megkezdett fizetés után kapunk üzenetet, hogy sikeres/sikertelen a fizetés. Ez azért gond, mert beragad az order map-be a rendelés, a stock-ban meg reserved marad a mennyiség. 
+Untrusted PaymentService: We may not receive a message after each payment initiated that the payment was successful / unsuccessful. This is a problem because the order gets stuck in the order map, the quantity remains in the stock.
 
-Megoldás:
- - eviction a map-en
- - MapEventListener: eviction eventnél karbantartjuk a táblát.
+Solution:
+ - eviction on the map
+ - MapEventListener: we maintain the table in case of an eviction event.
 
-## Bonyolítsuk: SupplyService
+## Complex: SupplyService
 
-beszállításokról kapunk információt, tehát a stock.availableQuantity módusul.
+we get information about deliveries, so stock.availableQuantity mode.
 
-A SupplyService ugyanúgy a postgres-hez nyúl, updateli, aztán ezért a stock IMap-et is karban kell tartania
-    -> duplikált kód a két service között
+SupplyService reaches postgres in the same way, updates, and then needs to maintain stock IMap
+    -> duplicate code between two services
 
-Megoldás:
+Solution:
 
-az IMap-re felteszünk egy MapStore-t
+we put a MapStore on IMap
 
-Innentől nincs is szükség a service-eknek a DB-vel kommunikálni, Hazelcaston keresztül megy.
+From here, there is no need for services to communicate with the DB, it goes through Hazelcast.
 
-TODO valami statikus információ: MapLoader
+TODO some static information: MapLoader
 
-## Bonyolítsuk: a webshopnak valahonnan tudnia kell a készlet-adatokat
-
-
-a stock IMap-ra egy streamet teszünk, grpc-vel kommunikálja vissza az adatokat
+## Complicate: the webshop needs to know the inventory data from somewhere
 
 
+we put a stream on stock IMap, it communicates back with grpc
 
-ProcurementService: ha adott termékből túl sokat túl gyorsan vesznek, akkor ezt streamen keresztül észreveszi, és értesíti a beszerzési részleget
+ProcurementService: if you buy too much of a product too fast, it notices it through a stream and notifies the purchasing department
 
-price-ok állítgatása: külső alkalmazással, amihez viszont nem tudunk hozzáférni, legacy app, postgres-be ír -> bejövő CDC stream alapján frissítjük a Stock map-et
+set prices: with external application, which we can't access, legacy app, writes to postgres -> we update the Stock map based on the incoming CDC stream
