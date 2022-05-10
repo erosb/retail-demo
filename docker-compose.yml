@@ -20,7 +20,7 @@ services:
       ALLOW_PLAINTEXT_LISTENER: "yes"
       KAFKA_CFG_ZOOKEEPER_CONNECT: zookeeper:2181
   management-center:
-    image: hazelcast/management-center:5.0-BETA-2
+    image: hazelcast/management-center:5.1
     ports:
       - "8080:8080"
     volumes:
@@ -30,7 +30,7 @@ services:
       HZ_MC_MEMBERS: hz-member
       MC_CLASSPATH: /opt/classpath
   hz-member:
-    image: hazelcast/hazelcast:5.0-BETA-2
+    image: hazelcast/hazelcast:5.1
     ports:
       - "5701-5800:5701"
     volumes:
